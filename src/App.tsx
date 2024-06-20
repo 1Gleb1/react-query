@@ -1,43 +1,33 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
-import { useMutation, useQuery } from "react-query";
-import axios from "axios";
+import { useCustomMutation } from "./api/query-hook/useCustomMutation";
+import { useCustomQuery } from "./api/query-hook/useCustomQuery";
 
 interface Post {
   userId: number;
   id: number;
   title: string;
-  body: string;
 }
+
 function App() {
-  const useCustomMutation = (url: string) => {
-    const mutation = useMutation((postData: Post) =>
-      axios.post("https://jsonplaceholder.typicode.com/" + url, postData)
-    );
-    return mutation;
-  };
-
-  const useCustomQuery = (url: string) => {
-    return useQuery({
-      queryKey: [url],
-      queryFn: async () => {
-        const data = await axios.get(
-          "https://jsonplaceholder.typicode.com/" + url
-        );
-        return data;
-      },
-    });
-  };
-
+  const { data: posts } = useCustomQuery("posts");
   const mutation = useCustomMutation("posts");
-  const { data } = useCustomQuery("posts");
 
-  console.log(mutation.mutate({ userId: 1, id: 1, title: "foo", body: "bar" }));
-  console.log(data);
-
-  return <></>;
+  return (
+    <>
+      <button
+        onClick={() => mutation.mutate({ useId: 1, id: 1, title: "title" })}
+      >
+        Create Post
+      </button>
+      {posts?.map((post: Post) => (
+        <div key={post.id} style={{ display: "flex", gap: "20px" }}>
+          <h4>{post.id}</h4>
+          <h5>{post.userId}</h5>
+          <p>{post.title}</p>
+        </div>
+      ))}
+    </>
+  );
 }
 
 export default App;
